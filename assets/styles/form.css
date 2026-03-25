@@ -1,0 +1,30 @@
+input,
+textarea,
+select {
+  font-family: var(--font-family);
+  font-size: var(--font-xs);
+  padding: var(--gap-sm) var(--gap-sm);
+  border: 1px solid var(--font-color2);
+  border-radius: 8px;
+  background-color: var(--color-white);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--font-color2);
+}
+
+textarea {
+  resize: vertical;
+}
+
+select {
+  appearance: none;
+}

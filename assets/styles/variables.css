@@ -1,0 +1,33 @@
+:root {
+  /* Colors */
+  --color1: #0d1117;
+  --color2: #151920;
+  --color3: #1c2129;
+  --color4: #00060f;
+
+  --color-white: #fff;
+  --font-color2: #333;
+
+  /* Accent Colors */
+  --accent-btn: #1c2129;
+  --accent-primary: #2563eb;
+  --accent-danger: #dc2626;
+  --accent-success: #16a34a;
+  --accent-warning: #d8b000;
+  --accent-reserved: #5800ca;
+
+  /* Font size */
+  --font-family: "Inter", sans-serif;
+  --font-xs: clamp(12px, 0.5vw, 14px);
+  --font-sm: clamp(14px, 1.5vw, 16px);
+  --font-md: clamp(16px, 2vw, 18px);
+  --font-lg: clamp(18px, 2.5vw, 20px);
+  --font-xl: clamp(20px, 3vw, 24px);
+
+  /* Spacing */
+  --gap-xs: 5px;
+  --gap-sm: 10px;
+  --gap-md: 20px;
+  --gap-lg: 30px;
+  --gap-xl: 50px;
+}
