@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import { useCarData } from "~/composables/useCarData";
+import { useEditMode } from "~/composables/useEditMode";
+
 const { cars, totalCars, priceRange, modelGroups, searchCar } = useCarData();
 const { editMode, cars: editableCars, toggleEditMode, duplicateCar, updateCar, deleteCar, saveCars, cancelEdit } = useEditMode();
 
@@ -6,9 +10,99 @@ const searchQuery = ref("");
 
 const filteredCars = computed(() => {
   const carList = editMode.value ? editableCars.value : cars.value;
-  if (!searchQuery.value.trim()) return carList;
-  return searchCar(searchQuery.value);
+  const query = searchQuery.value.toLowerCase();
+
+  if (!query) return carList;
+
+  return carList.filter((car: any) => {
+    return (
+      car.carName1.toLowerCase().includes(query) ||
+      car.carName2.toLowerCase().includes(query) ||
+      car.carPriceText.includes(query) ||
+      car.carId.includes(query)
+    );
+  });
 });
+
+// Drag and drop functionality
+const draggedCar = ref<any>(null);
+const draggedIndex = ref<number>(-1);
+const isSaving = ref<boolean>(false);
+
+const handleDragStart = (car: any, index: number, event: DragEvent) => {
+  if (!editMode.value) return;
+
+  draggedCar.value = car;
+  draggedIndex.value = index;
+
+  // Add drag effect
+  event.dataTransfer?.setData("text/plain", "");
+  event.dataTransfer?.setDragImage?.(event.target as Element, 0, 0);
+};
+
+const handleDragOver = (event: DragEvent) => {
+  if (!editMode.value) return;
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = "move";
+  }
+};
+
+const handleDrop = (targetCar: any, targetIndex: number, event: DragEvent) => {
+  if (!editMode.value || !draggedCar.value) return;
+
+  event.preventDefault();
+
+  const sourceIndex = draggedIndex.value;
+  const targetIdx = targetIndex;
+
+  if (sourceIndex === targetIdx) return;
+
+  // Reorder the cars array
+  const newCars = [...editableCars.value];
+  const [movedCar] = newCars.splice(sourceIndex, 1);
+  newCars.splice(targetIdx, 0, movedCar);
+
+  editableCars.value = newCars;
+
+  // Reset drag state
+  draggedCar.value = null;
+  draggedIndex.value = -1;
+};
+
+const handleDragEnd = () => {
+  console.log("handleDragEnd called");
+  draggedCar.value = null;
+  draggedIndex.value = -1;
+};
+
+const handleToggleEditMode = () => {
+  console.log("handleToggleEditMode called, editMode:", editMode.value);
+  if (editMode.value) {
+    // If exiting edit mode, discard all changes
+    cancelEdit();
+    return;
+  }
+  toggleEditMode();
+};
+
+const handleSaveChanges = async () => {
+  if (!editMode.value) return;
+
+  isSaving.value = true;
+  try {
+    console.log("Saving changes...");
+    await saveCars();
+    console.log("Save completed");
+    // Exit edit mode after successful save
+    toggleEditMode();
+  } catch (error) {
+    console.error("Save failed:", error);
+    alert("Failed to save changes. Please try again.");
+  } finally {
+    isSaving.value = false;
+  }
+};
 
 const totalModels = computed(() => Object.keys(modelGroups.value).length);
 
@@ -62,6 +156,17 @@ const exportData = () => {
       }${comma}`;
     })
     .join("\n");
+
+  // Generate HTML select options
+  const selectOptions = carList
+    .map((car: any) => {
+      return `            <option value="${car.carId}">${car.carName1} ${car.carName2}</option>`;
+    })
+    .join("\n");
+
+  const selectElement = `<select name="bydsuscoCar" id="bydsuscoCar" class="form-select">
+${selectOptions}
+          </select>`;
 
   const renderFunctions = `
     function renderResultInstallment(carId) {
@@ -184,6 +289,19 @@ ${renderFunctions}
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+
+  // Also download the HTML select element
+  setTimeout(() => {
+    const selectBlob = new Blob([selectElement], { type: "text/html" });
+    const selectUrl = URL.createObjectURL(selectBlob);
+    const selectA = document.createElement("a");
+    selectA.href = selectUrl;
+    selectA.download = "select-element.html";
+    document.body.appendChild(selectA);
+    selectA.click();
+    document.body.removeChild(selectA);
+    URL.revokeObjectURL(selectUrl);
+  }, 500);
 };
 
 const copyToClipboard = () => {
@@ -336,17 +454,7 @@ ${renderFunctions}
       // Show success message
       const successMsg = document.createElement("div");
       successMsg.textContent = "Script copied to clipboard!";
-      successMsg.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--accent-success);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      z-index: 1000;
-      font-weight: 500;
-    `;
+      successMsg.className = "success-message";
       document.body.appendChild(successMsg);
 
       // Remove message after 3 seconds
@@ -359,6 +467,43 @@ ${renderFunctions}
     .catch((err) => {
       console.error("Failed to copy:", err);
       alert("Failed to copy to clipboard");
+    });
+};
+
+const copySelectHtml = () => {
+  const carList = editMode.value ? editableCars.value : cars.value;
+
+  // Generate HTML select options
+  const selectOptions = carList
+    .map((car: any) => {
+      return `            <option value="${car.carId}">${car.carName1} ${car.carName2}</option>`;
+    })
+    .join("\n");
+
+  const selectElement = `<select name="bydsuscoCar" id="bydsuscoCar" class="form-select">
+${selectOptions}
+          </select>`;
+
+  // Copy to clipboard
+  navigator.clipboard
+    .writeText(selectElement)
+    .then(() => {
+      // Show success message
+      const successMsg = document.createElement("div");
+      successMsg.textContent = "HTML Select copied to clipboard!";
+      successMsg.className = "success-message";
+      document.body.appendChild(successMsg);
+
+      // Remove message after 3 seconds
+      setTimeout(() => {
+        if (successMsg.parentNode) {
+          successMsg.parentNode.removeChild(successMsg);
+        }
+      }, 3000);
+    })
+    .catch((err) => {
+      console.error("Failed to copy:", err);
+      alert("Failed to copy HTML Select to clipboard");
     });
 };
 
@@ -413,22 +558,16 @@ const importData = () => {
       }
 
       // Update the cars data
-      cars.value = importedCars;
+      if (editMode.value) {
+        editableCars.value = importedCars;
+      } else {
+        cars.value = importedCars;
+      }
 
       // Show success message
       const successMsg = document.createElement("div");
       successMsg.textContent = `Successfully imported ${importedCars.length} cars from ${file.name}!`;
-      successMsg.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--accent-success);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        z-index: 1000;
-        font-weight: 500;
-      `;
+      successMsg.className = "success-message";
       document.body.appendChild(successMsg);
 
       // Remove message after 3 seconds
@@ -439,19 +578,10 @@ const importData = () => {
       }, 3000);
     } catch (error: any) {
       console.error("Import error:", error);
+      // Show error message
       const errorMsg = document.createElement("div");
-      errorMsg.textContent = `Import failed: ${error instanceof Error ? error.message : String(error)}`;
-      errorMsg.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--accent-danger);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        z-index: 1000;
-        font-weight: 500;
-      `;
+      errorMsg.textContent = `Import error: ${error instanceof Error ? error.message : String(error)}`;
+      errorMsg.className = "danger-message";
       document.body.appendChild(errorMsg);
 
       // Remove message after 5 seconds
@@ -483,27 +613,45 @@ const importData = () => {
       <div class="dashboard__search-section">
         <input v-model="searchQuery" type="text" placeholder="Search by model name or price..." class="dashboard__search-input" />
         <div class="dashboard__edit-controls">
-          <button @click="toggleEditMode" class="dashboard__edit-btn" :class="{ 'dashboard__edit-btn--active': editMode }">
-            {{ editMode ? "Exit Edit Mode" : "Edit Mode" }}
+          <button
+            @click="handleToggleEditMode"
+            class="dashboard__edit-btn accent-secondary"
+            :class="{ 'dashboard__edit-btn--active': editMode }"
+            :disabled="isSaving"
+            v-if="!editMode"
+          >
+            Edit Mode
           </button>
-          <button @click="exportData" class="dashboard__export-btn">Export Data</button>
-          <button @click="copyToClipboard" class="dashboard__copy-btn">Copy Script</button>
-          <button @click="importData" class="dashboard__import-btn">Import Data</button>
-          <button v-if="editMode" @click="saveCars" class="dashboard__save-btn">Save Changes</button>
-          <button v-if="editMode" @click="cancelEdit" class="dashboard__cancel-btn">Cancel</button>
+          <button @click="handleSaveChanges" class="dashboard__save-btn accent-success" :disabled="isSaving" v-if="editMode">
+            {{ isSaving ? "Saving..." : "Save Changes" }}
+          </button>
+          <button @click="handleToggleEditMode" class="dashboard__cancel-btn accent-danger" :disabled="isSaving" v-if="editMode">
+            Exit Edit Mode
+          </button>
+          <button @click="exportData" class="dashboard__export-btn accent-reserved">Export Data</button>
+          <button @click="copyToClipboard" class="dashboard__copy-btn accent-primary">Copy Script</button>
+          <button @click="copySelectHtml" class="dashboard__copy-select-btn accent-reserved">Copy Select</button>
+          <button @click="importData" class="dashboard__import-btn accent-warning">Import Data</button>
         </div>
       </div>
 
       <div class="dashboard__grid">
         <CarCard
-          v-for="car in filteredCars"
+          v-for="(car, index) in filteredCars"
           :key="car.carId"
           :car="car"
+          :index="index"
           :edit-mode="editMode"
+          :draggable="editMode"
+          :is-dragging="draggedCar?.carId === car.carId"
           @duplicate="handleDuplicate"
+          @delete="handleDelete"
           @update="handleUpdate"
           @updateInstallmentRate="handleUpdateInstallmentRate"
-          @delete="handleDelete"
+          @dragstart="handleDragStart"
+          @dragover="handleDragOver"
+          @drop="handleDrop"
+          @dragend="handleDragEnd"
         />
       </div>
 
@@ -545,16 +693,13 @@ const importData = () => {
 .dashboard__search-input {
   flex: 1;
   min-width: 300px;
-  padding: var(--gap-sm) var(--gap-md);
+  color: var(--color-white);
   font-size: var(--font-sm);
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: var(--color-white);
-  transition: border-color 0.2s ease;
+  border-color: var(--color2);
+  transition: all 0.3s ease;
 }
 
 .dashboard__search-input:focus {
-  border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
@@ -564,44 +709,30 @@ const importData = () => {
   flex-shrink: 0;
 }
 
-.dashboard__edit-btn {
-  background-color: var(--accent-btn);
-  color: var(--color-white);
-}
-
 .dashboard__edit-btn--active {
   background-color: var(--accent-warning);
 }
 
-.dashboard__export-btn {
-  background-color: var(--accent-reserved);
-  color: var(--color-white);
-}
-
-.dashboard__copy-btn {
-  background-color: var(--accent-primary);
-  color: var(--color-white);
-}
-
-.dashboard__import-btn {
-  background-color: var(--accent-warning);
-  color: var(--color-white);
-}
-
-.dashboard__save-btn {
-  background-color: var(--accent-success);
-  color: var(--color-white);
-}
-
-.dashboard__cancel-btn {
-  background-color: var(--accent-danger);
-  color: var(--color-white);
-}
-
 .dashboard__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--gap-md);
+  margin-bottom: var(--gap-xl);
+}
+
+.dashboard__card--dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+  cursor: grabbing !important;
+}
+
+.dashboard__card--dragging * {
+  pointer-events: none;
+}
+
+.dashboard__grid[drag-over] {
+  background: rgba(37, 99, 235, 0.05);
+  border-radius: 8px;
 }
 
 .dashboard__empty {

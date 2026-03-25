@@ -402,8 +402,9 @@ const carData: CarData[] = [
   },
 ]
 
+const cars = ref<CarData[]>(JSON.parse(JSON.stringify(carData)))
+
 export function useCarData() {
-  const cars = ref<CarData[]>(JSON.parse(JSON.stringify(carData)))
 
   const totalCars = computed(() => cars.value.length)
 

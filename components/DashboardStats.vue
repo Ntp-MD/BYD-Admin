@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useDashboardStats } from "~/composables/useDashboardStats";
+
 interface Props {
   totalCars: number;
   totalModels: number;
@@ -6,26 +8,28 @@ interface Props {
   priceMax: number;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const stats = useDashboardStats(props);
 </script>
 
 <template>
   <div class="stats-grid">
     <div class="stat-card">
       <span class="stat-card__label">Total Models</span>
-      <span class="stat-card__value">{{ totalCars }}</span>
+      <span class="stat-card__value">{{ stats.totalCars }}</span>
     </div>
     <div class="stat-card">
       <span class="stat-card__label">Model Lines</span>
-      <span class="stat-card__value">{{ totalModels }}</span>
+      <span class="stat-card__value">{{ stats.totalModels }}</span>
     </div>
     <div class="stat-card">
       <span class="stat-card__label">Lowest Price</span>
-      <span class="stat-card__value">{{ priceMin.toLocaleString() }}</span>
+      <span class="stat-card__value">{{ stats.priceMin.toLocaleString() }}</span>
     </div>
     <div class="stat-card">
       <span class="stat-card__label">Highest Price</span>
-      <span class="stat-card__value">{{ priceMax.toLocaleString() }}</span>
+      <span class="stat-card__value">{{ stats.priceMax.toLocaleString() }}</span>
     </div>
   </div>
 </template>

@@ -6,7 +6,9 @@ button {
   border: none;
   padding: var(--gap-sm) var(--gap-md);
   border-radius: 8px;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 button:focus {

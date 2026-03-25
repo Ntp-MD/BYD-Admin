@@ -6,6 +6,19 @@ const nextId = ref(26)
 
 export function useEditMode() {
   const toggleEditMode = () => {
+    if (!editMode.value) {
+      // Entering edit mode: deep-copy fresh data from original
+      const originalData = useCarData()
+      cars.value = originalData.cars.value.map(car => ({
+        ...car,
+        carInstallmentDetails: car.carInstallmentDetails.map(detail => ({
+          ...detail,
+          carMonthPaid: {
+            percentPerMonth: [...detail.carMonthPaid.percentPerMonth]
+          }
+        }))
+      }))
+    }
     editMode.value = !editMode.value
   }
 
@@ -59,10 +72,14 @@ export function useEditMode() {
     }
   }
 
-  const saveCars = () => {
+  const saveCars = async () => {
+    console.log('saveCars called, cars to save:', cars.value.length);
     const originalData = useCarData()
+    console.log('Original cars before save:', originalData.cars.value.length);
     originalData.cars.value.splice(0, originalData.cars.value.length, ...cars.value)
-    editMode.value = false
+    console.log('Original cars after save:', originalData.cars.value.length);
+    // Don't toggle edit mode here - let the caller handle it
+    return Promise.resolve()
   }
 
   const cancelEdit = () => {

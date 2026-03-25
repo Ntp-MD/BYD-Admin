@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import type { CarData } from "~/types/car";
+import { useCarCard } from "~/composables/useCarCard";
 
 interface Props {
   car: CarData;
   editMode?: boolean;
+  draggable?: boolean;
+  index?: number;
+  isDragging?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -15,89 +19,62 @@ const emit = defineEmits<{
   addInstallmentDetail: [carId: string, percent: number];
   removeInstallmentDetail: [carId: string, detailIndex: number];
   delete: [carId: string];
+  dragstart: [car: CarData, index: number, event: DragEvent];
+  dragover: [event: DragEvent];
+  drop: [car: CarData, index: number, event: DragEvent];
+  dragend: [];
 }>();
 
-const editingField = ref<string | null>(null);
-const editingDetailIndex = ref<number | null>(null);
-const editingRateIndex = ref<number | null>(null);
-const tempValue = ref("");
-const showAddInstallment = ref(false);
-const newInstallmentPercent = ref("");
-
-const startEdit = (field: string, currentValue: string | number, detailIndex?: number, rateIndex?: number) => {
-  if (detailIndex !== undefined && rateIndex !== undefined) {
-    editingField.value = `installment_${detailIndex}_${rateIndex}`;
-    editingDetailIndex.value = detailIndex;
-    editingRateIndex.value = rateIndex;
-  } else {
-    editingField.value = field;
-    editingDetailIndex.value = null;
-    editingRateIndex.value = null;
-  }
-  tempValue.value = String(currentValue);
-};
-
-const saveEdit = (carId: string, field: keyof CarData) => {
-  if (editingDetailIndex.value !== null && editingRateIndex.value !== null) {
-    emit("updateInstallmentRate", carId, editingDetailIndex.value, editingRateIndex.value, tempValue.value);
-  } else {
-    emit("update", carId, field, tempValue.value);
-  }
-  editingField.value = null;
-  editingDetailIndex.value = null;
-  editingRateIndex.value = null;
-};
-
-const cancelEdit = () => {
-  editingField.value = null;
-  editingDetailIndex.value = null;
-  editingRateIndex.value = null;
-  tempValue.value = "";
-};
-
-const addInstallmentDetail = () => {
-  const percent = Number(newInstallmentPercent.value);
-  if (!isNaN(percent) && percent >= 5 && percent <= 50) {
-    emit("addInstallmentDetail", props.car.carId, percent);
-    newInstallmentPercent.value = "";
-    showAddInstallment.value = false;
-  }
-};
-
-const removeInstallmentDetail = (detailIndex: number) => {
-  if (confirm(`Remove ${props.car.carInstallmentDetails[detailIndex].carRatePricePercent}% down payment option?`)) {
-    emit("removeInstallmentDetail", props.car.carId, detailIndex);
-  }
-};
+const {
+  editingField,
+  editingDetailIndex,
+  editingRateIndex,
+  tempValue,
+  showAddInstallment,
+  newInstallmentPercent,
+  startEdit,
+  saveEdit,
+  cancelEdit,
+  addInstallmentDetail,
+  removeInstallmentDetail,
+} = useCarCard();
 </script>
 
 <template>
-  <div class="card car-card">
+  <div
+    class="card car-card"
+    :class="{ 'car-card--dragging': props.isDragging }"
+    :draggable="props.draggable && props.editMode"
+    @dragstart="emit('dragstart', props.car, props.index || 0, $event)"
+    @dragover="emit('dragover', $event)"
+    @drop="emit('drop', props.car, props.index || 0, $event)"
+    @dragend="emit('dragend')"
+  >
     <div v-if="editMode" class="car-card__actions">
-      <button @click="$emit('duplicate', props.car)" class="car-card__btn car-card__btn--duplicate">Duplicate</button>
-      <button @click="$emit('delete', props.car.carId)" class="car-card__btn car-card__btn--delete">Delete</button>
+      <button @click="$emit('duplicate', props.car)" class="car-card__btn accent-primary">Duplicate</button>
+      <button @click="$emit('delete', props.car.carId)" class="car-card__btn accent-danger">Delete</button>
     </div>
 
     <div class="car-card__image">
       <div v-if="editMode && editingField === 'carImageUrl'" class="car-card__image-edit">
         <div class="car-card__url-input-container">
-          <label class="car-card__url-label">Image URL:</label>
+          <label class="car-card__url-label text-primary text-center">Image URL:</label>
           <input
             v-model="tempValue"
-            @blur="saveEdit(props.car.carId, 'carImageUrl')"
-            @keyup.enter="saveEdit(props.car.carId, 'carImageUrl')"
+            @blur="saveEdit(props.car.carId, 'carImageUrl', emit)"
+            @keyup.enter="saveEdit(props.car.carId, 'carImageUrl', emit)"
             @keyup.esc="cancelEdit"
-            class="car-card__input car-card__input--url"
+            class="car-card__input car-card__input--url input-border-thick shadow-input-url"
             placeholder="Paste new image URL here..."
             ref="imageUrlInput"
           />
-          <div class="car-card__url-hint">Press Enter to save, Esc to cancel</div>
+          <div class="car-card__url-hint text-secondary text-center">Press Enter to save, Esc to cancel</div>
         </div>
       </div>
       <div v-else-if="editMode" class="car-card__image-edit-mode">
         <img :src="props.car.carImageUrl" :alt="props.car.carName1 + ' ' + props.car.carName2" loading="lazy" class="car-card__image-preview" />
         <div class="car-card__url-overlay">
-          <button @click="startEdit('carImageUrl', props.car.carImageUrl)" class="car-card__url-edit-btn">📝 Edit URL</button>
+          <button @click="startEdit('carImageUrl', props.car.carImageUrl)" class="car-card__url-edit-btn accent-primary">📝 Edit URL</button>
         </div>
       </div>
       <img v-else :src="props.car.carImageUrl" :alt="props.car.carName1 + ' ' + props.car.carName2" loading="lazy" class="car-card__image-normal" />
@@ -109,8 +86,8 @@ const removeInstallmentDetail = (detailIndex: number) => {
             <label class="car-card__logo-label">Logo URL:</label>
             <input
               v-model="tempValue"
-              @blur="saveEdit(props.car.carId, 'carLogoUrl')"
-              @keyup.enter="saveEdit(props.car.carId, 'carLogoUrl')"
+              @blur="saveEdit(props.car.carId, 'carLogoUrl', emit)"
+              @keyup.enter="saveEdit(props.car.carId, 'carLogoUrl', emit)"
               @keyup.esc="cancelEdit"
               class="car-card__input car-card__input--logo"
               placeholder="Paste new logo URL here..."
@@ -122,7 +99,7 @@ const removeInstallmentDetail = (detailIndex: number) => {
         <div v-else-if="editMode" class="car-card__logo-edit-mode">
           <img :src="props.car.carLogoUrl.trim()" alt="Brand Logo" class="car-card__logo-preview" />
           <div class="car-card__logo-overlay">
-            <button @click="startEdit('carLogoUrl', props.car.carLogoUrl.trim())" class="car-card__logo-edit-btn">📝 Edit Logo</button>
+            <button @click="startEdit('carLogoUrl', props.car.carLogoUrl.trim())" class="car-card__logo-edit-btn accent-primary">📝 Edit Logo</button>
           </div>
         </div>
         <img v-else :src="props.car.carLogoUrl.trim()" alt="Brand Logo" class="car-card__logo-normal" />
@@ -135,8 +112,8 @@ const removeInstallmentDetail = (detailIndex: number) => {
         <input
           v-else
           v-model="tempValue"
-          @blur="saveEdit(props.car.carId, 'carName1')"
-          @keyup.enter="saveEdit(props.car.carId, 'carName1')"
+          @blur="saveEdit(props.car.carId, 'carName1', emit)"
+          @keyup.enter="saveEdit(props.car.carId, 'carName1', emit)"
           @keyup.esc="cancelEdit"
           class="car-card__input"
           ref="editInput"
@@ -148,8 +125,8 @@ const removeInstallmentDetail = (detailIndex: number) => {
         <input
           v-else
           v-model="tempValue"
-          @blur="saveEdit(props.car.carId, 'carName2')"
-          @keyup.enter="saveEdit(props.car.carId, 'carName2')"
+          @blur="saveEdit(props.car.carId, 'carName2', emit)"
+          @keyup.enter="saveEdit(props.car.carId, 'carName2', emit)"
           @keyup.esc="cancelEdit"
           class="car-card__input"
         />
@@ -167,8 +144,8 @@ const removeInstallmentDetail = (detailIndex: number) => {
         <input
           v-else
           v-model="tempValue"
-          @blur="saveEdit(props.car.carId, 'carPrice')"
-          @keyup.enter="saveEdit(props.car.carId, 'carPrice')"
+          @blur="saveEdit(props.car.carId, 'carPrice', emit)"
+          @keyup.enter="saveEdit(props.car.carId, 'carPrice', emit)"
           @keyup.esc="cancelEdit"
           class="car-card__input car-card__input--price"
           type="number"
@@ -181,7 +158,7 @@ const removeInstallmentDetail = (detailIndex: number) => {
           <div class="car-card__installment-header">
             <span class="car-card__installment-title">Installment Options</span>
             <div class="car-card__installment-actions">
-              <button @click="showAddInstallment = true" class="car-card__btn car-card__btn--add">+ Add %</button>
+              <button @click="showAddInstallment = true" class="car-card__btn accent-success">+ Add %</button>
             </div>
           </div>
           <div v-if="showAddInstallment" class="car-card__add-installment">
@@ -195,8 +172,8 @@ const removeInstallmentDetail = (detailIndex: number) => {
               placeholder="Down % (5, 10, 15...)"
             />
             <div class="car-card__add-buttons">
-              <button @click="addInstallmentDetail" class="car-card__btn car-card__btn--confirm">Add</button>
-              <button @click="showAddInstallment = false" class="car-card__btn car-card__btn--cancel">Cancel</button>
+              <button @click="addInstallmentDetail(props.car.carId, emit)" class="car-card__btn accent-success">Add</button>
+              <button @click="showAddInstallment = false" class="car-card__btn accent-secondary">Cancel</button>
             </div>
           </div>
         </div>
@@ -219,8 +196,8 @@ const removeInstallmentDetail = (detailIndex: number) => {
                 <div v-if="editMode && editingField === `installment_${detailIndex}_${rateIndex}`" class="car-card__rate-edit">
                   <input
                     v-model="tempValue"
-                    @blur="saveEdit(props.car.carId, 'carInstallmentDetails')"
-                    @keyup.enter="saveEdit(props.car.carId, 'carInstallmentDetails')"
+                    @blur="saveEdit(props.car.carId, 'carInstallmentDetails', emit)"
+                    @keyup.enter="saveEdit(props.car.carId, 'carInstallmentDetails', emit)"
                     @keyup.esc="cancelEdit"
                     class="car-card__input car-card__input--rate"
                     type="number"
@@ -236,7 +213,7 @@ const removeInstallmentDetail = (detailIndex: number) => {
                 <span v-else class="car-card__rate-normal"> {{ rate }}% </span>
               </td>
               <td v-if="editMode" class="car-card__table-actions">
-                <button @click="removeInstallmentDetail(detailIndex)" class="car-card__btn car-card__btn--remove">🗑️</button>
+                <button @click="removeInstallmentDetail(props.car.carId, detailIndex, emit)" class="car-card__btn accent-danger">🗑️</button>
               </td>
             </tr>
           </tbody>
@@ -294,21 +271,12 @@ const removeInstallmentDetail = (detailIndex: number) => {
 }
 
 .car-card__url-label {
-  font-size: var(--font-xs);
   font-weight: 600;
-  color: var(--color1);
-  text-align: center;
 }
 
 .car-card__input--url {
   width: 100%;
-  padding: var(--gap-sm);
-  font-size: var(--font-xs);
   text-align: left;
-  background-color: var(--color-white);
-  border: 2px solid var(--accent-primary);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .car-card__url-hint {
@@ -334,19 +302,13 @@ const removeInstallmentDetail = (detailIndex: number) => {
 }
 
 .car-card__url-edit-btn {
-  background-color: var(--accent-primary);
-  color: var(--color-white);
-  border: none;
   padding: var(--gap-xs) var(--gap-sm);
   border-radius: 6px;
   font-size: var(--font-xs);
-  cursor: pointer;
-  transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .car-card__url-edit-btn:hover {
-  background-color: #1d4ed8;
   transform: translateY(-1px);
 }
 
@@ -404,11 +366,9 @@ const removeInstallmentDetail = (detailIndex: number) => {
 
 .car-card__input--logo {
   width: 100%;
-  padding: var(--gap-xs);
-  font-size: var(--font-xs);
   text-align: left;
-  background-color: var(--color-white);
-  border: 2px solid var(--accent-primary);
+  border-color: var(--accent-primary);
+  border-width: 2px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -433,19 +393,13 @@ const removeInstallmentDetail = (detailIndex: number) => {
 }
 
 .car-card__logo-edit-btn {
-  background-color: var(--accent-primary);
-  color: var(--color-white);
-  border: none;
   padding: var(--gap-xs) var(--gap-sm);
   border-radius: 6px;
   font-size: var(--font-xs);
-  cursor: pointer;
-  transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .car-card__logo-edit-btn:hover {
-  background-color: #b89400;
   transform: translateY(-1px);
 }
 
@@ -456,11 +410,9 @@ const removeInstallmentDetail = (detailIndex: number) => {
 
 .car-card__input--rate {
   width: 60px;
-  padding: 2px 4px;
-  font-size: var(--font-xs);
   text-align: center;
-  background-color: var(--color-white);
-  border: 2px solid var(--accent-primary);
+  border-color: var(--accent-primary);
+  border-width: 2px;
   border-radius: 4px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
@@ -518,8 +470,7 @@ const removeInstallmentDetail = (detailIndex: number) => {
 .car-card__input--add {
   width: 100%;
   margin-bottom: var(--gap-xs);
-  padding: var(--gap-xs);
-  border: 1px solid var(--accent-primary);
+  border-color: var(--accent-primary);
   border-radius: 4px;
 }
 
@@ -529,34 +480,7 @@ const removeInstallmentDetail = (detailIndex: number) => {
   justify-content: flex-end;
 }
 
-.car-card__btn--duplicate {
-  background-color: var(--accent-primary);
-  color: var(--color-white);
-}
-
-.car-card__btn--delete {
-  background-color: var(--accent-danger);
-  color: var(--color-white);
-}
-
-.car-card__btn--add {
-  background-color: var(--accent-success);
-  color: var(--color-white);
-}
-
-.car-card__btn--confirm {
-  background-color: var(--accent-success);
-  color: var(--color-white);
-}
-
-.car-card__btn--cancel {
-  background-color: var(--font-color2);
-  color: var(--color1);
-}
-
 .car-card__btn--remove {
-  background-color: var(--accent-danger);
-  color: var(--color-white);
   padding: var(--gap-xs) var(--gap-xs);
   font-size: 10px;
 }
@@ -666,12 +590,10 @@ const removeInstallmentDetail = (detailIndex: number) => {
 }
 
 .car-card__input {
-  font-family: var(--font-family);
   font-size: inherit;
-  border: 1px solid var(--accent-primary);
+  border-color: var(--accent-primary);
   border-radius: 4px;
   padding: 2px 6px;
-  background-color: var(--color-white);
   width: 100%;
 }
 
@@ -683,5 +605,23 @@ const removeInstallmentDetail = (detailIndex: number) => {
 .car-card__input--price {
   font-weight: 700;
   color: var(--accent-primary);
+}
+
+/* Drag and Drop Styles */
+.car-card--dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+  cursor: grabbing;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+}
+
+.car-card[draggable="true"] {
+  cursor: grab;
+}
+
+.car-card[draggable="true"]:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 </style>
