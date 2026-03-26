@@ -615,7 +615,7 @@ const importData = () => {
         <div class="dashboard__edit-controls">
           <button
             @click="handleToggleEditMode"
-            class="dashboard__edit-btn accent-secondary"
+            class="dashboard__edit-btn accent-base"
             :class="{ 'dashboard__edit-btn--active': editMode }"
             :disabled="isSaving"
             v-if="!editMode"
@@ -693,14 +693,6 @@ const importData = () => {
 .dashboard__search-input {
   flex: 1;
   min-width: 300px;
-  color: var(--color-white);
-  font-size: var(--font-sm);
-  border-color: var(--color2);
-  transition: all 0.3s ease;
-}
-
-.dashboard__search-input:focus {
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .dashboard__edit-controls {

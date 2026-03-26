@@ -4,12 +4,12 @@
   --color2: #151920;
   --color3: #1c2129;
   --color4: #00060f;
-
   --color-white: #fff;
-  --font-color2: #333;
+  --font-color1: #333;
+  --font-color2: #696969;
 
   /* Accent Colors */
-  --accent-btn: #1c2129;
+  --accent-base: #1c2129;
   --accent-primary: #2563eb;
   --accent-danger: #dc2626;
   --accent-success: #16a34a;
@@ -30,4 +30,9 @@
   --gap-md: 20px;
   --gap-lg: 30px;
   --gap-xl: 50px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
 }

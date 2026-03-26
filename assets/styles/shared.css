@@ -1,41 +1,6 @@
-/* SHARED COMPONENTS & UTILITIES */
+/* SHARED COMPONENTS ONLY */
 
-/* BACKGROUND COLOR UTILITIES */
-.bg-primary {
-  background-color: var(--color1);
-}
-
-.bg-secondary {
-  background-color: var(--color2);
-}
-
-.bg-light {
-  background-color: #f4f6f8;
-}
-
-.bg-white {
-  background-color: var(--color-white);
-}
-
-.bg-success-message {
-  background: var(--accent-success);
-}
-
-.bg-danger-message {
-  background: var(--accent-danger);
-}
-
-/* CURSOR UTILITIES */
-.cursor-pointer {
-  cursor: pointer;
-}
-
-/* TRANSITION UTILITIES */
-.transition {
-  transition: all 0.2s ease;
-}
-
-/* SUCCESS MESSAGE UTILITY */
+/* MESSAGE COMPONENTS */
 .success-message {
   position: fixed;
   top: 20px;
@@ -48,7 +13,6 @@
   font-weight: 500;
 }
 
-/* DANGER MESSAGE UTILITY */
 .danger-message {
   position: fixed;
   top: 20px;
@@ -61,7 +25,7 @@
   font-weight: 500;
 }
 
-/* EDIT BUTTON UTILITY */
+/* BUTTON COMPONENTS */
 .edit-button {
   padding: var(--gap-xs) var(--gap-sm);
   border-radius: 6px;
@@ -73,13 +37,13 @@
   transform: translateY(-1px);
 }
 
-/* INPUT BORDER THICK UTILITY */
+/* INPUT COMPONENTS */
 .input-border-thick {
   border-color: var(--accent-primary);
   border-width: 2px;
 }
 
-/* SHARED COMPONENTS */
+/* LAYOUT COMPONENTS */
 .section-header {
   margin-bottom: var(--gap-lg);
 }

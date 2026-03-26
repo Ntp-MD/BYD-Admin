@@ -4,7 +4,7 @@ select {
   font-family: var(--font-family);
   font-size: var(--font-xs);
   padding: var(--gap-sm) var(--gap-sm);
-  border: 1px solid var(--font-color2);
+  border: 1px solid var(--accent-primary);
   border-radius: 8px;
   background-color: var(--color-white);
   min-height: 42px;

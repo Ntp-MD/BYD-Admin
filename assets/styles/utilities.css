@@ -1,0 +1,222 @@
+/* BASIC UTILITIES - Not Tailwind Level */
+
+/* SPACING */
+.gap-xs {
+  gap: var(--gap-xs);
+}
+.gap-sm {
+  gap: var(--gap-sm);
+}
+.gap-md {
+  gap: var(--gap-md);
+}
+.gap-lg {
+  gap: var(--gap-lg);
+}
+.gap-xl {
+  gap: var(--gap-xl);
+}
+
+.p-xs {
+  padding: var(--gap-xs);
+}
+.p-sm {
+  padding: var(--gap-sm);
+}
+.p-md {
+  padding: var(--gap-md);
+}
+.p-lg {
+  padding: var(--gap-lg);
+}
+.p-xl {
+  padding: var(--gap-xl);
+}
+
+.m-xs {
+  margin: var(--gap-xs);
+}
+.m-sm {
+  margin: var(--gap-sm);
+}
+.m-md {
+  margin: var(--gap-md);
+}
+.m-lg {
+  margin: var(--gap-lg);
+}
+.m-xl {
+  margin: var(--gap-xl);
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* DISPLAY */
+.flex {
+  display: flex;
+}
+.grid {
+  display: grid;
+}
+.hidden {
+  display: none;
+}
+.block {
+  display: block;
+}
+
+/* GRID COLUMNS */
+.grid-cols-1 {
+  grid-template-columns: repeat(1, 1fr);
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* RESPONSIVE GRID HELPERS */
+@media screen and (max-width: 992px) {
+  .grid-cols-4-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .grid-cols-4-responsive {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* FLEX */
+.flex-col {
+  flex-direction: column;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.items-center {
+  align-items: center;
+}
+
+/* TEXT */
+.text-center {
+  text-align: center;
+}
+.text-xs {
+  font-size: var(--font-xs);
+}
+.text-sm {
+  font-size: var(--font-sm);
+}
+.text-md {
+  font-size: var(--font-md);
+}
+.text-lg {
+  font-size: var(--font-lg);
+}
+.text-xl {
+  font-size: var(--font-xl);
+}
+.font-bold {
+  font-weight: 700;
+}
+
+/* COLORS */
+.text-primary {
+  color: var(--accent-primary);
+}
+.text-success {
+  color: var(--accent-success);
+}
+.text-danger {
+  color: var(--accent-danger);
+}
+.text-warning {
+  color: var(--accent-warning);
+}
+.text-reserved {
+  color: var(--accent-reserved);
+}
+.text-base {
+  color: var(--accent-base);
+}
+.text-secondary {
+  color: var(--font-color2);
+}
+.text-white {
+  color: var(--color-white);
+}
+
+.accent-primary {
+  background-color: var(--accent-primary);
+  color: var(--color-white);
+}
+.accent-success {
+  background-color: var(--accent-success);
+  color: var(--color-white);
+}
+.accent-danger {
+  background-color: var(--accent-danger);
+  color: var(--color-white);
+}
+.accent-warning {
+  background-color: var(--accent-warning);
+  color: var(--color-white);
+}
+.accent-reserved {
+  background-color: var(--accent-reserved);
+  color: var(--color-white);
+}
+.accent-base {
+  background-color: var(--accent-base);
+  color: var(--color-white);
+}
+
+/* BORDERS */
+.rounded {
+  border-radius: var(--radius-md);
+}
+.border {
+  border: 1px solid var(--color1);
+}
+
+/* CURSOR */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* TRANSITION */
+.transition {
+  transition: all 0.2s ease;
+}
+
+/* POSITION */
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
+
+/* SIZING */
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+
+.w-fill {
+  width: stretch;
+}
+.h-fill {
+  height: stretch;
+}

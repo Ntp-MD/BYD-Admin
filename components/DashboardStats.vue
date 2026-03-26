@@ -14,65 +14,36 @@ const stats = useDashboardStats(props);
 </script>
 
 <template>
-  <div class="stats-grid">
-    <div class="stat-card">
-      <span class="stat-card__label">Total Models</span>
-      <span class="stat-card__value">{{ stats.totalCars }}</span>
+  <div class="grid grid-cols-4 gap-md m-lg">
+    <div class="card rounded p-md flex flex-col gap-xs">
+      <span class="text-xl font-bold">{{ stats.totalCars }}</span>
+      <span class="text-xs">Total Models</span>
     </div>
-    <div class="stat-card">
-      <span class="stat-card__label">Model Lines</span>
-      <span class="stat-card__value">{{ stats.totalModels }}</span>
+    <div class="card rounded p-md flex flex-col gap-xs">
+      <span class="text-xl font-bold">{{ stats.totalModels }}</span>
+      <span class="text-xs">Model Lines</span>
     </div>
-    <div class="stat-card">
-      <span class="stat-card__label">Lowest Price</span>
-      <span class="stat-card__value">{{ stats.priceMin.toLocaleString() }}</span>
+    <div class="card rounded p-md flex flex-col gap-xs">
+      <span class="text-xl font-bold">{{ stats.priceMin.toLocaleString() }}</span>
+      <span class="text-xs">Lowest Price</span>
     </div>
-    <div class="stat-card">
-      <span class="stat-card__label">Highest Price</span>
-      <span class="stat-card__value">{{ stats.priceMax.toLocaleString() }}</span>
+    <div class="card rounded p-md flex flex-col gap-xs">
+      <span class="text-xl font-bold">{{ stats.priceMax.toLocaleString() }}</span>
+      <span class="text-xs">Highest Price</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--gap-md);
-  margin-bottom: var(--gap-lg);
-}
-
-.stat-card {
-  background-color: var(--color-white);
-  border-radius: 12px;
-  padding: var(--gap-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card__label {
-  font-size: var(--font-xs);
-  color: var(--font-color2);
-  font-weight: 500;
-}
-
-.stat-card__value {
-  font-size: var(--font-xl);
-  font-weight: 700;
-  color: var(--color1);
-}
-
 @media screen and (max-width: 992px) {
-  .stats-grid {
+  .grid-cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media screen and (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .grid-cols-4 {
+    grid-template-columns: repeat(1, 1fr);
   }
 }
 </style>
