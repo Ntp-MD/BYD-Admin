@@ -51,30 +51,30 @@ const {
     @dragend="emit('dragend')"
   >
     <div v-if="editMode" class="car-card__actions">
-      <button @click="$emit('duplicate', props.car)" class="car-card__btn accent-primary">Duplicate</button>
-      <button @click="$emit('delete', props.car.carId)" class="car-card__btn accent-danger">Delete</button>
+      <button @click="$emit('duplicate', props.car)" class="accent-primary">Duplicate</button>
+      <button @click="$emit('delete', props.car.carId)" class="accent-danger">Delete</button>
     </div>
 
     <div class="car-card__image">
       <div v-if="editMode && editingField === 'carImageUrl'" class="car-card__image-edit">
         <div class="car-card__url-input-container">
-          <label class="car-card__url-label text-primary text-center">Image URL:</label>
+          <label class="car-card__url-label">Image URL:</label>
           <input
             v-model="tempValue"
             @blur="saveEdit(props.car.carId, 'carImageUrl', emit)"
             @keyup.enter="saveEdit(props.car.carId, 'carImageUrl', emit)"
             @keyup.esc="cancelEdit"
-            class="car-card__input car-card__input--url input-border-thick shadow-input-url"
+            class="car-card__input car-card__input--url"
             placeholder="Paste new image URL here..."
             ref="imageUrlInput"
           />
-          <div class="car-card__url-hint text-secondary text-center">Press Enter to save, Esc to cancel</div>
+          <div class="car-card__url-hint">Press Enter to save, Esc to cancel</div>
         </div>
       </div>
       <div v-else-if="editMode" class="car-card__image-edit-mode">
         <img :src="props.car.carImageUrl" :alt="props.car.carName1 + ' ' + props.car.carName2" loading="lazy" class="car-card__image-preview" />
         <div class="car-card__url-overlay">
-          <button @click="startEdit('carImageUrl', props.car.carImageUrl)" class="car-card__url-edit-btn accent-primary">📝 Edit URL</button>
+          <button @click="startEdit('carImageUrl', props.car.carImageUrl)" class="accent-primary">📝 Edit URL</button>
         </div>
       </div>
       <img v-else :src="props.car.carImageUrl" :alt="props.car.carName1 + ' ' + props.car.carName2" loading="lazy" class="car-card__image-normal" />
@@ -99,7 +99,7 @@ const {
         <div v-else-if="editMode" class="car-card__logo-edit-mode">
           <img :src="props.car.carLogoUrl.trim()" alt="Brand Logo" class="car-card__logo-preview" />
           <div class="car-card__logo-overlay">
-            <button @click="startEdit('carLogoUrl', props.car.carLogoUrl.trim())" class="car-card__logo-edit-btn accent-primary">📝 Edit Logo</button>
+            <button @click="startEdit('carLogoUrl', props.car.carLogoUrl.trim())" class="accent-primary">📝 Edit Logo</button>
           </div>
         </div>
         <img v-else :src="props.car.carLogoUrl.trim()" alt="Brand Logo" class="car-card__logo-normal" />
@@ -158,7 +158,7 @@ const {
           <div class="car-card__installment-header">
             <span class="car-card__installment-title">Installment Options</span>
             <div class="car-card__installment-actions">
-              <button @click="showAddInstallment = true" class="car-card__btn accent-success">+ Add %</button>
+              <button @click="showAddInstallment = true" class="accent-success">+ Add %</button>
             </div>
           </div>
           <div v-if="showAddInstallment" class="car-card__add-installment">
@@ -172,8 +172,8 @@ const {
               placeholder="Down % (5, 10, 15...)"
             />
             <div class="car-card__add-buttons">
-              <button @click="addInstallmentDetail(props.car.carId, emit)" class="car-card__btn accent-success">Add</button>
-              <button @click="showAddInstallment = false" class="car-card__btn accent-secondary">Cancel</button>
+              <button @click="addInstallmentDetail(props.car.carId, emit)" class="accent-success">Add</button>
+              <button @click="showAddInstallment = false" class="accent-danger">Cancel</button>
             </div>
           </div>
         </div>
@@ -213,7 +213,7 @@ const {
                 <span v-else class="car-card__rate-normal"> {{ rate }}% </span>
               </td>
               <td v-if="editMode" class="car-card__table-actions">
-                <button @click="removeInstallmentDetail(props.car.carId, detailIndex, emit)" class="car-card__btn accent-danger">🗑️</button>
+                <button @click="removeInstallmentDetail(props.car.carId, detailIndex, emit)" class="accent-danger">🗑️</button>
               </td>
             </tr>
           </tbody>
@@ -231,23 +231,21 @@ const {
 }
 
 .car-card__image {
-  background-color: #f4f6f8;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--gap-md);
-  min-height: 180px;
+  min-height: 250px;
+  aspect-ratio: 1;
   position: relative;
 }
 
 .car-card__image-normal {
-  max-height: 160px;
   object-fit: contain;
   width: 100%;
 }
 
 .car-card__image-preview {
-  max-height: 120px;
   object-fit: contain;
   width: 100%;
   opacity: 0.7;
@@ -303,7 +301,7 @@ const {
 
 .car-card__url-edit-btn {
   padding: var(--gap-xs) var(--gap-sm);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: var(--font-xs);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
@@ -343,7 +341,7 @@ const {
 
 .car-card__logo-edit {
   width: 100%;
-  min-height: 60px;
+  min-height: calc(var(--gap-lg) * 3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,12 +367,12 @@ const {
   text-align: left;
   border-color: var(--accent-primary);
   border-width: 2px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .car-card__logo-hint {
-  font-size: 10px;
+  font-size: var(--font-xs);
   color: var(--font-color2);
   text-align: center;
   font-style: italic;
@@ -388,13 +386,13 @@ const {
 
 .car-card__logo-overlay {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
+  bottom: var(--gap-xs);
+  right: var(--gap-xs);
 }
 
 .car-card__logo-edit-btn {
   padding: var(--gap-xs) var(--gap-sm);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: var(--font-xs);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
@@ -413,22 +411,21 @@ const {
   text-align: center;
   border-color: var(--accent-primary);
   border-width: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 .car-card__rate-value {
   cursor: pointer;
   transition: background-color 0.2s ease;
-  padding: 2px 4px;
-  border-radius: 3px;
+  padding: var(--gap-xs) var(--gap-xs);
+  border-radius: var(--radius-xs);
   display: inline-block;
   min-width: 40px;
   text-align: center;
 }
 
 .car-card__rate-value:hover {
-  background-color: #f0f0f0;
 }
 
 .car-card__rate-normal {
@@ -460,9 +457,9 @@ const {
 }
 
 .car-card__add-installment {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
+  background-color: var(--color3);
+  border: 1px solid var(--color2);
+  border-radius: var(--radius-md);
   padding: var(--gap-sm);
   margin-bottom: var(--gap-sm);
 }
@@ -471,7 +468,7 @@ const {
   width: 100%;
   margin-bottom: var(--gap-xs);
   border-color: var(--accent-primary);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 .car-card__add-buttons {
@@ -482,7 +479,7 @@ const {
 
 .car-card__btn--remove {
   padding: var(--gap-xs) var(--gap-xs);
-  font-size: 10px;
+  font-size: var(--font-xs);
 }
 
 .car-card__table-actions {
@@ -505,7 +502,7 @@ const {
   gap: var(--gap-xs);
   margin-top: var(--gap-sm);
   padding-top: var(--gap-sm);
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--font-color3);
 }
 
 .car-card__price-label {
@@ -537,27 +534,25 @@ const {
 
 .car-card__table th,
 .car-card__table td {
-  padding: 6px 8px;
+  padding: var(--gap-xs) var(--gap-sm);
   text-align: center;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--font-color3);
 }
 
 .car-card__table th {
-  background-color: #f4f6f8;
   font-weight: 600;
-  color: var(--color1);
+  color: var(--color2);
 }
 
 .car-card__table td {
-  color: var(--color3);
+  color: var(--color2);
 }
 
 .car-card__actions {
   display: flex;
   gap: var(--gap-xs);
   padding: var(--gap-sm);
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--accent-primary);
 }
 
 .car-card__name-section {
@@ -569,31 +564,29 @@ const {
   display: inline-block;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: var(--gap-xs) var(--gap-xs);
+  border-radius: var(--radius-xs);
 }
 
 .car-card__name1:hover,
 .car-card__name2:hover {
-  background-color: #f0f0f0;
 }
 
 .car-card__price-value {
   cursor: pointer;
   transition: background-color 0.2s ease;
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: var(--gap-xs) var(--gap-xs);
+  border-radius: var(--radius-xs);
 }
 
 .car-card__price-value:hover {
-  background-color: #f0f0f0;
 }
 
 .car-card__input {
   font-size: inherit;
   border-color: var(--accent-primary);
-  border-radius: 4px;
-  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  padding: var(--gap-xs) var(--gap-sm);
   width: 100%;
 }
 

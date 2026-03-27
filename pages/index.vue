@@ -611,27 +611,25 @@ const importData = () => {
       <DashboardStats :total-cars="totalCars" :total-models="totalModels" :price-min="priceRange.min" :price-max="priceRange.max" />
 
       <div class="dashboard__search-section">
-        <input v-model="searchQuery" type="text" placeholder="Search by model name or price..." class="dashboard__search-input" />
+        <input v-model="searchQuery" type="text" placeholder="Search by model name or price..." />
         <div class="dashboard__edit-controls">
           <button
             @click="handleToggleEditMode"
-            class="dashboard__edit-btn accent-base"
+            class="accent-base"
             :class="{ 'dashboard__edit-btn--active': editMode }"
             :disabled="isSaving"
             v-if="!editMode"
           >
             Edit Mode
           </button>
-          <button @click="handleSaveChanges" class="dashboard__save-btn accent-success" :disabled="isSaving" v-if="editMode">
+          <button @click="handleSaveChanges" class="accent-success" :disabled="isSaving" v-if="editMode">
             {{ isSaving ? "Saving..." : "Save Changes" }}
           </button>
-          <button @click="handleToggleEditMode" class="dashboard__cancel-btn accent-danger" :disabled="isSaving" v-if="editMode">
-            Exit Edit Mode
-          </button>
-          <button @click="exportData" class="dashboard__export-btn accent-reserved">Export Data</button>
-          <button @click="copyToClipboard" class="dashboard__copy-btn accent-primary">Copy Script</button>
-          <button @click="copySelectHtml" class="dashboard__copy-select-btn accent-reserved">Copy Select</button>
-          <button @click="importData" class="dashboard__import-btn accent-warning">Import Data</button>
+          <button @click="handleToggleEditMode" class="accent-danger" :disabled="isSaving" v-if="editMode">Exit Edit Mode</button>
+          <button @click="exportData" class="accent-reserved">Export Data</button>
+          <button @click="copyToClipboard" class="accent-primary">Copy Script</button>
+          <button @click="copySelectHtml" class="accent-reserved">Copy Select</button>
+          <button @click="importData" class="accent-warning">Import Data</button>
         </div>
       </div>
 
@@ -664,7 +662,6 @@ const importData = () => {
 
 <style scoped>
 .dashboard {
-  background-color: #f0f2f5;
   min-height: 100vh;
   padding: var(--gap-lg) 0;
 }
@@ -680,6 +677,10 @@ const importData = () => {
 .dashboard__header p {
   color: var(--font-color2);
   margin: var(--gap-xs) 0 0;
+}
+
+.dashboard__search-section input {
+  width: 100%;
 }
 
 .dashboard__search-section {
@@ -724,7 +725,7 @@ const importData = () => {
 
 .dashboard__grid[drag-over] {
   background: rgba(37, 99, 235, 0.05);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .dashboard__empty {

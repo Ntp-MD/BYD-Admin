@@ -14,36 +14,48 @@ const stats = useDashboardStats(props);
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-md m-lg">
-    <div class="card rounded p-md flex flex-col gap-xs">
-      <span class="text-xl font-bold">{{ stats.totalCars }}</span>
-      <span class="text-xs">Total Models</span>
+  <div class="dashboard-stats">
+    <div class="dashboard-stats-card card">
+      <span class="dashboard-stats-count">{{ stats.totalCars }}</span>
+      <span class="dashboard-stats-label">Total Models</span>
     </div>
-    <div class="card rounded p-md flex flex-col gap-xs">
-      <span class="text-xl font-bold">{{ stats.totalModels }}</span>
-      <span class="text-xs">Model Lines</span>
+    <div class="dashboard-stats-card card">
+      <span class="dashboard-stats-count">{{ stats.totalModels }}</span>
+      <span class="dashboard-stats-label">Model Lines</span>
     </div>
-    <div class="card rounded p-md flex flex-col gap-xs">
-      <span class="text-xl font-bold">{{ stats.priceMin.toLocaleString() }}</span>
-      <span class="text-xs">Lowest Price</span>
+    <div class="dashboard-stats-card card">
+      <span class="dashboard-stats-count">{{ stats.priceMin.toLocaleString() }}</span>
+      <span class="dashboard-stats-label">Lowest Price</span>
     </div>
-    <div class="card rounded p-md flex flex-col gap-xs">
-      <span class="text-xl font-bold">{{ stats.priceMax.toLocaleString() }}</span>
-      <span class="text-xs">Highest Price</span>
+    <div class="dashboard-stats-card card">
+      <span class="dashboard-stats-count">{{ stats.priceMax.toLocaleString() }}</span>
+      <span class="dashboard-stats-label">Highest Price</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-@media screen and (max-width: 992px) {
-  .grid-cols-4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap-md);
+  margin: var(--gap-lg) 0;
 }
 
-@media screen and (max-width: 480px) {
-  .grid-cols-4 {
-    grid-template-columns: repeat(1, 1fr);
-  }
+.dashboard-stats-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding: var(--gap-md);
+}
+
+.dashboard-stats-count {
+  font-size: var(--font-xl);
+  font-weight: 600;
+}
+
+.dashboard-stats-label {
+  color: var(--font-color2);
+  font-size: var(--font-sm);
 }
 </style>
